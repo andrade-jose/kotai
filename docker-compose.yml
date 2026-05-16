@@ -1,0 +1,13 @@
+services:
+  kotai:
+    build: .
+    container_name: kotai
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production

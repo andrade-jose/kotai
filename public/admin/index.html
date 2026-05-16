@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — KTI Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080c10;--bg2:#0d1219;--bg3:#131a23;--border:#1e2d3d;--border2:#243447;--accent:#00e5a0;--accent2:#00b37e;--text:#e8edf2;--text2:#7a8fa6;--text3:#3d5166;--red:#ff4d6d;--yellow:#f5c542;--mono:'Space Mono',monospace;--sans:'Syne',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.2;pointer-events:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+nav{border-bottom:1px solid var(--border);padding:14px 0;background:rgba(8,12,16,.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.admin-badge{font-family:var(--mono);font-size:11px;color:var(--yellow);border:1px solid rgba(245,197,66,.25);border-radius:4px;padding:3px 10px}
+.nav-right{display:flex;align-items:center;gap:14px}
+.avatar{width:30px;height:30px;border-radius:50%;border:1px solid var(--border2)}
+.logout-btn{font-family:var(--mono);font-size:11px;color:var(--text2);background:transparent;border:1px solid var(--border2);border-radius:4px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.page{padding:36px 0}
+h1{font-size:26px;font-weight:800;margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text2);margin-bottom:32px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.stat-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.stat-val{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent)}
+.stat-hint{font-size:12px;color:var(--text2);margin-top:4px}
+.section-title{font-family:var(--mono);font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:3px;height:11px;background:var(--accent);border-radius:2px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+td:last-child{text-align:right;font-family:var(--mono);color:var(--accent)}
+tr:last-child td{border-bottom:none}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:var(--text2)}
+.info-val{font-family:var(--mono);font-size:12px;color:var(--text)}
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <div class="nav-inner">
+      <div class="logo"><div class="dot"></div>KTI_TRACKER</div>
+      <div class="nav-right">
+        <div class="admin-badge">ADMIN</div>
+        <img class="avatar" id="user-avatar" src="" alt="">
+        <button class="logout-btn" onclick="logout()">sair</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="page">
+    <h1>Painel admin</h1>
+    <p class="page-sub">Bem-vindo, <span id="user-name">—</span></p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Visitas hoje</div>
+        <div class="stat-val" id="visits-today">—</div>
+        <div class="stat-hint">páginas acessadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Visitas total</div>
+        <div class="stat-val" id="visits-total">—</div>
+        <div class="stat-hint">desde o início</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cache preço</div>
+        <div class="stat-val" style="font-size:14px;padding-top:6px" id="price-update">—</div>
+        <div class="stat-hint">última atualização</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cache IA</div>
+        <div class="stat-val" style="font-size:14px;padding-top:6px" id="news-update">—</div>
+        <div class="stat-hint">último resumo gerado</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Páginas mais acessadas</div>
+      <table>
+        <thead><tr><th>Página</th><th>Acessos</th></tr></thead>
+        <tbody id="pages-table"><tr><td colspan="2" style="color:var(--text3)">carregando...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Status do sistema</div>
+      <div id="system-info">
+        <div class="info-row"><span class="info-key">Domínio</span><span class="info-val">kotaitracker.online</span></div>
+        <div class="info-row"><span class="info-key">Ambiente</span><span class="info-val" id="env-val">—</span></div>
+        <div class="info-row"><span class="info-key">Banco de dados</span><span class="info-val">SQLite ✓</span></div>
+        <div class="info-row"><span class="info-key">Groq API</span><span class="info-val" id="groq-status">—</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+async function init() {
+  const me = await fetch('/auth/me').then(r => r.json()).catch(() => null);
+  if (!me || me.error) { location.href = '/login.html'; return; }
+  document.getElementById('user-name').textContent = me.name || me.email;
+  if (me.avatar) document.getElementById('user-avatar').src = me.avatar;
+
+  const stats = await fetch('/api/admin/stats').then(r => r.json()).catch(() => null);
+  if (!stats) return;
+
+  document.getElementById('visits-today').textContent = stats.visits_today ?? '0';
+  document.getElementById('visits-total').textContent = stats.visits_total ?? '0';
+
+  const fmt = d => d ? new Date(d).toLocaleString('pt-BR') : '—';
+  document.getElementById('price-update').textContent = fmt(stats.price_last_update);
+  document.getElementById('news-update').textContent = fmt(stats.news_last_update);
+  document.getElementById('env-val').textContent = 'production ✓';
+  document.getElementById('groq-status').textContent = stats.news_last_update ? 'conectado ✓' : 'sem dados ainda';
+
+  const tbody = document.getElementById('pages-table');
+  if (stats.visits_by_page?.length) {
+    tbody.innerHTML = stats.visits_by_page.map(p =>
+      `<tr><td>${p.page}</td><td>${p.count}</td></tr>`
+    ).join('');
+  } else {
+    tbody.innerHTML = '<tr><td colspan="2" style="color:var(--text3)">Nenhuma visita ainda.</td></tr>';
+  }
+}
+
+async function logout() {
+  await fetch('/auth/logout', { method: 'POST' });
+  location.href = '/login.html';
+}
+
+init();
+</script>
+</body>
+</html>

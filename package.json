@@ -1,0 +1,20 @@
+{
+  "name": "kotai-tracker",
+  "version": "1.0.0",
+  "description": "KTI Token Tracker",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "better-sqlite3": "^9.4.3",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.6",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.5"
+  }
+}
