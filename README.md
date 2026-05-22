@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KTI Tracker
 
-## Getting Started
+Tracker em tempo real do token **KTI (Kotai)** na Binance Smart Chain.
 
-First, run the development server:
+🌐 **Live:** [kotaitracker.online](https://kotaitracker.online)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Funcionalidades
+
+- **Preço ao vivo** — busca direto na DexScreener (BSC/PancakeSwap), cache de 2 min
+- **Preço de venda** — markup configurável sobre a cotação (padrão +50%)
+- **Conversor KTI ↔ BRL** em tempo real
+- **Calculadora de portfólio** — valor de mercado e valor de venda
+- **Análise diária por IA** — RSS de portais cripto brasileiros + resumo via Groq (Llama 3)
+- **Painel admin** — protegido por Google OAuth, mostra estatísticas de visitas
+- **Zero custo** — home server + Cloudflare Tunnel + APIs gratuitas
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Linguagem | TypeScript |
+| Estilização | Tailwind CSS |
+| Banco de dados | SQLite (better-sqlite3) |
+| Autenticação | next-auth + Google OAuth 2.0 |
+| Preço | DexScreener API |
+| Câmbio USD/BRL | Open Exchange Rates |
+| IA | Groq API (llama-3.1-8b-instant) |
+| Deploy | Docker + Cloudflare Tunnel |
+
+---
+
+## Estrutura
+
+```
+kotai/
+├── app/
+│   ├── page.tsx               # Página principal
+│   ├── login/page.tsx         # Login Google
+│   ├── admin/page.tsx         # Painel admin
+│   └── api/
+│       ├── price/route.ts     # Preço KTI via DexScreener
+│       ├── news/route.ts      # Análise IA via Groq
+│       ├── auth/              # next-auth (Google OAuth)
+│       └── admin/
+│           ├── stats/route.ts # Estatísticas de visitas
+│           └── price/route.ts # Atualização manual de preço
+├── lib/
+│   ├── db.ts                  # SQLite (better-sqlite3)
+│   └── auth.ts                # Configuração next-auth
+├── public/
+│   └── kotai-logo.svg
+├── .env.example
+├── Dockerfile
+└── docker-compose.yml
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Método | Rota | Auth | Descrição |
+|---|---|---|---|
+| GET | `/api/price` | pública | Preço KTI (USD, BRL, venda, variação 24h) |
+| GET | `/api/news` | pública | Resumo de notícias gerado por IA |
+| GET | `/api/admin/stats` | sessão | Visitas por página |
+| POST | `/api/admin/price` | sessão | Atualização manual de preço |
 
-## Learn More
+**Exemplo de resposta `/api/price`:**
+```json
+{
+  "price_usd": 0.00007487,
+  "price_brl": 0.00037474,
+  "price_sale_usd": 0.00011231,
+  "price_sale_brl": 0.00056211,
+  "usd_brl_rate": 5.005,
+  "change_24h": -1.45,
+  "volume_24h": 3462.54,
+  "market_cap": 74872190,
+  "updated_at": "2026-05-22T20:50:15.233Z"
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Como rodar localmente
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git clone https://github.com/andrade-jose/kotai.git
+cd kotai
+npm install
+cp .env.example .env.local
+# Preencha as variáveis no .env.local
+npm run dev
+```
 
-## Deploy on Vercel
+### Variáveis de ambiente
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=          # openssl rand -hex 32
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GOOGLE_CLIENT_ID=         # console.cloud.google.com
+GOOGLE_CLIENT_SECRET=
+
+ADMIN_EMAILS=seuemail@gmail.com
+
+GROQ_API_KEY=             # console.groq.com
+
+SALE_MARKUP=1.5           # markup de venda (1.5 = +50%)
+```
+
+### Docker
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+## Deploy (home server)
+
+O site roda em um servidor doméstico exposto via **Cloudflare Tunnel**, sem abrir portas no roteador.
+
+```
+Internet → Cloudflare Tunnel → Nginx → Docker (Next.js :3002)
+```
+
+Para atualizar o servidor após um push:
+
+```bash
+cd /srv/kotai && git pull && docker compose up -d --build
+```
+
+---
+
+## Licença
+
+MIT
