@@ -1,13 +1,12 @@
 services:
-  kotai:
+  kotai-app:
     build: .
-    container_name: kotai
+    container_name: kotai_nextjs
     restart: unless-stopped
     ports:
       - "3002:3002"
     volumes:
       - ./data:/app/data
-    env_file:
-      - .env
+      - ./db:/app/db
     environment:
-      - NODE_ENV=production
+      - PORT=3002
