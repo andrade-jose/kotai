@@ -135,14 +135,13 @@ export default function Home() {
             {/* STATS ROW */}
             <div className="stats-grid" style={{ gap: 1, background: c.border, borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
               {[
-                { label: 'Preço BRL', value: pBRL ? 'R$ ' + pBRL.toFixed(6) : '—', color: c.text },
-                { label: 'Preço USD', value: pUSD ? '$' + pUSD.toFixed(8) : '—', color: c.text },
-                { label: 'Dólar hoje', value: price ? 'R$ ' + price.usd_brl_rate.toFixed(2) : '—', color: c.text },
-                { label: 'Preço Venda BRL', value: pSaleBRL ? 'R$ ' + pSaleBRL.toFixed(6) : '—', color: c.yellow },
+                { label: 'Preço BRL', value: pBRL ? 'R$ ' + pBRL.toFixed(6) : '—' },
+                { label: 'Preço USD', value: pUSD ? '$' + pUSD.toFixed(8) : '—' },
+                { label: 'Dólar hoje', value: price ? 'R$ ' + price.usd_brl_rate.toFixed(2) : '—' },
               ].map(s => (
                 <div key={s.label} style={{ background: c.surface, padding: '16px 20px' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: c.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>{s.label}</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: s.color }}>{s.value}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 700, color: c.text }}>{s.value}</div>
                 </div>
               ))}
             </div>
@@ -192,19 +191,10 @@ export default function Home() {
               <input value={portfolio} onChange={e => setPortfolio(sanitize(e.target.value))}
                 placeholder="Quantos KTI você tem?" type="text" inputMode="decimal"
                 style={{ width: '100%', background: c.bg, border: `1px solid ${c.border}`, borderRadius: 8, padding: '12px 16px', fontFamily: 'var(--font-mono)', fontSize: 15, color: c.text, outline: 'none', marginBottom: 12, boxSizing: 'border-box' as const }} />
-              <div style={{ background: '#0d1f0f', border: `1px solid ${c.greenDim}`, borderRadius: 8, padding: '16px 18px', marginBottom: 10 }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: `${c.green}80`, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Valor de mercado</div>
+              <div style={{ background: '#0d1f0f', border: `1px solid ${c.greenDim}`, borderRadius: 8, padding: '16px 18px' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: `${c.green}80`, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Valor estimado</div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 28, fontWeight: 700, color: c.green }}>R$ {portBRL}</div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: c.muted, marginTop: 4 }}>≈ ${portUSD} USD</div>
-              </div>
-              <div style={{ background: '#1a1500', border: `1px solid ${c.yellow}30`, borderRadius: 8, padding: '16px 18px' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: `${c.yellow}80`, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Valor de venda (+50%)</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 28, fontWeight: 700, color: c.yellow }}>
-                  {portfolio && pSaleBRL ? 'R$ ' + (parseFloat(portfolio) * pSaleBRL).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'R$ 0,00'}
-                </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: c.muted, marginTop: 4 }}>
-                  ≈ ${portfolio && pSaleUSD ? (parseFloat(portfolio) * pSaleUSD).toFixed(4) : '0.0000'} USD
-                </div>
               </div>
             </div>
 
@@ -250,8 +240,8 @@ export default function Home() {
             <div style={{ background: c.surface, border: `1px solid ${c.border}`, borderRadius: 12, padding: 20 }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: c.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Token</div>
               {[
-                { k: 'Preço BRL', v: pBRL ? 'R$ ' + pBRL.toFixed(6) : '—', color: c.text },
-                { k: 'Preço USD', v: pUSD ? '$' + pUSD.toFixed(8) : '—', color: c.text },
+                { k: 'Cotação BRL', v: pBRL ? 'R$ ' + pBRL.toFixed(6) : '—', color: c.text },
+                { k: 'Cotação USD', v: pUSD ? '$' + pUSD.toFixed(8) : '—', color: c.text },
                 { k: 'Venda BRL', v: pSaleBRL ? 'R$ ' + pSaleBRL.toFixed(6) : '—', color: c.yellow },
                 { k: 'Venda USD', v: pSaleUSD ? '$' + pSaleUSD.toFixed(8) : '—', color: c.yellow },
                 { k: 'Dólar', v: price ? 'R$ ' + price.usd_brl_rate.toFixed(2) : '—', color: c.text },
