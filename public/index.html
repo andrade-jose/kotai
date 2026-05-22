@@ -144,6 +144,11 @@ footer{border-top:1px solid var(--border);padding:22px 0;text-align:center;font-
       <div class="stat-val" id="price-brl">—</div>
       <div class="stat-sub muted" id="updated-at">—</div>
     </div>
+    <div class="stat" style="border-left:2px solid var(--yellow)">
+      <div class="stat-label" style="color:var(--yellow)">Preço de Venda BRL</div>
+      <div class="stat-val" id="price-sale-brl" style="color:var(--yellow)">—</div>
+      <div class="stat-sub muted" id="price-sale-usd">—</div>
+    </div>
     <div class="stat">
       <div class="stat-label">Volume 24h</div>
       <div class="stat-val" id="volume">—</div>
@@ -175,10 +180,15 @@ footer{border-top:1px solid var(--border);padding:22px 0;text-align:center;font-
     <div class="card" id="portfolio">
       <div class="card-title">Calculadora de portfólio</div>
       <input class="port-input" id="port-amount" type="number" placeholder="Quantos KTI você tem?" min="0">
-      <div class="port-result">
-        <div class="port-label">Valor estimado</div>
+      <div class="port-result" style="margin-bottom:10px">
+        <div class="port-label">Valor de mercado</div>
         <div class="port-brl" id="port-brl">R$ 0,00</div>
         <div class="port-usd" id="port-usd">≈ $0.00 USD</div>
+      </div>
+      <div class="port-result" style="background:rgba(245,197,66,.05);border-color:rgba(245,197,66,.2)">
+        <div class="port-label" style="color:var(--yellow)">Valor de venda (+50%)</div>
+        <div class="port-brl" id="port-sale-brl" style="color:var(--yellow)">R$ 0,00</div>
+        <div class="port-usd" id="port-sale-usd">≈ $0.00 USD</div>
       </div>
     </div>
 
@@ -223,12 +233,12 @@ footer{border-top:1px solid var(--border);padding:22px 0;text-align:center;font-
 
 <footer>
   <div class="wrap">
-    KTI_TRACKER · dados via CoinGecko · análise via Groq AI · não é conselho financeiro
+    KTI_TRACKER · dados via DexScreener · análise via Groq AI · não é conselho financeiro
   </div>
 </footer>
 
 <script>
-let priceBRL = 0, priceUSD = 0;
+let priceBRL = 0, priceUSD = 0, priceSaleBRL = 0, priceSaleUSD = 0;
 let ktiMode = true;
 
 async function loadPrice() {
@@ -237,12 +247,16 @@ async function loadPrice() {
     const d = await r.json();
     priceBRL = d.price_brl || 0;
     priceUSD = d.price_usd || 0;
+    priceSaleBRL = d.price_sale_brl || 0;
+    priceSaleUSD = d.price_sale_usd || 0;
 
     const fmt = (n, dec=8) => n ? n.toFixed(dec) : '—';
     const fmtK = n => n >= 1e9 ? (n/1e9).toFixed(2)+'B' : n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : (n||0).toFixed(2);
 
     document.getElementById('price-usd').textContent = '$' + fmt(priceUSD, 8);
     document.getElementById('price-brl').textContent = 'R$ ' + fmt(priceBRL, 6);
+    document.getElementById('price-sale-brl').textContent = 'R$ ' + fmt(priceSaleBRL, 6);
+    document.getElementById('price-sale-usd').textContent = '≈ $' + fmt(priceSaleUSD, 8) + ' USD';
     document.getElementById('nav-price').textContent = '$' + fmt(priceUSD, 6);
     document.getElementById('volume').textContent = '$' + fmtK(d.volume_24h);
     document.getElementById('mcap').textContent = '$' + fmtK(d.market_cap);
@@ -270,6 +284,8 @@ function updatePortfolio() {
   const amt = parseFloat(document.getElementById('port-amount').value) || 0;
   document.getElementById('port-brl').textContent = 'R$ ' + (amt * priceBRL).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('port-usd').textContent = '≈ $' + (amt * priceUSD).toFixed(4) + ' USD';
+  document.getElementById('port-sale-brl').textContent = 'R$ ' + (amt * priceSaleBRL).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('port-sale-usd').textContent = '≈ $' + (amt * priceSaleUSD).toFixed(4) + ' USD';
 }
 
 document.getElementById('port-amount').addEventListener('input', updatePortfolio);

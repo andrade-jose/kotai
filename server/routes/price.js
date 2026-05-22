@@ -4,6 +4,21 @@ const db = require('../db/database');
 
 const router = express.Router();
 const CACHE_TTL = 2 * 60 * 1000; // 2 minutos
+const KTI_ADDRESS = '0xd1fB56e6aEe842708392f2c8ee948bDfABae3AFE';
+const SALE_MARKUP = parseFloat(process.env.SALE_MARKUP) || 1.5;
+
+async function fetchUsdToBrl() {
+  try {
+    const resp = await fetch(
+      'https://open.er-api.com/v6/latest/USD',
+      { signal: AbortSignal.timeout(5000) }
+    );
+    const data = await resp.json();
+    return data.rates?.BRL || 5.70;
+  } catch {
+    return 5.70; // fallback
+  }
+}
 
 router.get('/', async (req, res) => {
   try {
@@ -15,25 +30,35 @@ router.get('/', async (req, res) => {
     }
 
     const resp = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=kotai&vs_currencies=usd,brl&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true',
+      `https://api.dexscreener.com/latest/dex/tokens/${KTI_ADDRESS}`,
       { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(8000) }
     );
 
-    if (!resp.ok) throw new Error(`CoinGecko ${resp.status}`);
+    if (!resp.ok) throw new Error(`DexScreener ${resp.status}`);
     const data = await resp.json();
-    const kti = data.kotai;
+    const pairs = data.pairs;
 
-    if (!kti) {
+    if (!pairs || pairs.length === 0) {
       if (cached) return res.json({ ...cached, cached: true, stale: true });
       return res.status(404).json({ error: 'token não encontrado' });
     }
 
+    // Usa o par com maior volume 24h
+    const pair = pairs.reduce((best, p) =>
+      (p.volume?.h24 || 0) > (best.volume?.h24 || 0) ? p : best
+    );
+
+    const price_usd = parseFloat(pair.priceUsd);
+    const usdToBrl = await fetchUsdToBrl();
+
     const row = {
-      price_usd: kti.usd,
-      price_brl: kti.brl,
-      change_24h: kti.usd_24h_change,
-      volume_24h: kti.usd_24h_vol,
-      market_cap: kti.usd_market_cap,
+      price_usd,
+      price_brl: price_usd * usdToBrl,
+      price_sale_usd: price_usd * SALE_MARKUP,
+      price_sale_brl: price_usd * SALE_MARKUP * usdToBrl,
+      change_24h: pair.priceChange?.h24 || 0,
+      volume_24h: pair.volume?.h24 || 0,
+      market_cap: pair.marketCap || pair.fdv || 0,
     };
 
     db.prepare(`
