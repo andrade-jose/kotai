@@ -1,7 +1,16 @@
 .env
 data/
 node_modules/
-docs/
 *.db
 *.db-shm
 *.db-wal
+
+# Credenciais OAuth (nunca commitar)
+client_secret*.json
+
+# Arquivos de infraestrutura interna
+TUNNEL.md
+
+# Arquivos temporários / binários
+*.tar.gz
+*.zip
