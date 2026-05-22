@@ -32,6 +32,7 @@ export async function GET() {
         price_brl: price_usd * usdBrl,
         price_sale_usd: price_usd * SALE_MARKUP,
         price_sale_brl: price_usd * SALE_MARKUP * usdBrl,
+        usd_brl_rate: usdBrl,
         change_24h: cached.change_24h ?? 0,
         volume_24h: cached.volume_24h ?? 0,
         market_cap: cached.market_cap ?? 0,
